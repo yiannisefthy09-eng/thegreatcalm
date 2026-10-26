@@ -1,0 +1,463 @@
+<title>The Great Calm</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+: root{
+  --night: #0a1014;
+  --deep: #111a1f;
+  --line: #26333a;
+  --bone: #d9d3bf;
+  --bone-dim: #8e8a7c;
+  --ember: #c0563c;
+  --gold: #d9a842;
+  --display: "IM Fell English", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+html, body { background: var(--night); color: var(--bone); }
+body { font-family: var(--display); }
+.wrap {
+  max-width: 980px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 24px 40px;
+  display: grid; gap: 14px;
+}
+header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; }
+h1 { font-family: var(--display); font-weight: 400; font-size: clamp(1.8rem, 4vw, 2.6rem); margin: 0; letter-spacing: 0.01em; text-wrap: balance; }
+.sub { font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--bone-dim); margin: 0; }
+.stage { position: relative; border: 1px solid var(--line); background: var(--night); }
+canvas { display: block; width: 100%; max-width: 100%; aspect-ratio: 16 / 10; touch-action: manipulation; }
+.overlay {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  background: rgba(6, 10, 13, 0.88); padding: 24px; overflow-y: auto; text-align: center;
+}
+.card { max-width: 34rem; display: grid; gap: 14px; justify-items: center; }
+.card h2 { font-weight: 400; font-style: italic; font-size: clamp(1.4rem, 3vw, 2rem); margin: 0; text-wrap: balance; }
+.card p { margin: 0; font-size: 1.1rem; line-height: 1.5; color: var(--bone); }
+.task { font-family: var(--mono); font-size: 0.8rem !important; text-transform: uppercase; letter-spacing: 0.12em; color: var(--gold) !important; }
+.eyebrow { font-family: var(--mono); font-size: 0.72rem !important; text-transform: uppercase; letter-spacing: 0.12em; color: var(--bone-dim) !important; }
+.tally { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 24px; margin: 0; width: 100%; text-align: left; }
+.tally div { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+.tally dt { font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--bone-dim); }
+.tally dd { margin: 0; font-family: var(--mono); font-size: 1.3rem; font-variant-numeric: tabular-nums; color: var(--bone); }
+.tally dd.zero { color: var(--ember); }
+.tally dd.one { color: var(--gold); }
+blockquote { margin: 0; font-size: 1.3rem; font-style: italic; line-height: 1.4; }
+button {
+  font-family: var(--display); font-size: 1.2rem; color: var(--bone);
+  background: transparent; border: 1px solid var(--ember); padding: 0.5rem 2rem; cursor: pointer;
+}
+button:hover:not(:disabled) { background: rgba(192, 86, 60, 0.16); }
+button:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+button:disabled { opacity: 0.35; cursor: default; }
+#pray.ready { border-color: var(--gold); color: var(--gold); animation: call 1.6s ease-in-out infinite; }
+@keyframes call { 50% { box-shadow: 0 0 0 6px rgba(217, 168, 66, 0.18); } }
+.log {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px;
+  font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--bone-dim);
+}
+.log .stats { display: flex; flex-wrap: wrap; gap: 6px 22px; }
+.log b { font-weight: 500; color: var(--bone); font-variant-numeric: tabular-nums; }
+.page { display: grid; grid-template-columns: 13rem minmax(0, 1fr); gap: 24px; align-items: start; padding-top: 8px; border-top: 1px solid var(--line); }
+.gloss { font-style: italic; font-size: 0.95rem; line-height: 1.4; color: var(--bone-dim); margin: 0; }
+.verse { font-size: clamp(1.15rem, 2.4vw, 1.45rem); line-height: 1.5; margin: 0; min-height: 4.5em; }
+.verse .aside { font-style: italic; color: var(--bone-dim); }
+.verse.in { animation: rise 0.6s ease-out; }
+@keyframes rise { from { opacity: 0.2; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+.source { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.04em; color: var(--bone-dim); margin: 0; line-height: 1.5; }
+@media (max-width: 640px) {
+  .overlay { position: static; background: var(--deep); }
+  .page { grid-template-columns: 1fr; gap: 8px; }
+  .tally { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #pray.ready, .verse.in { animation: none; }
+}
+</style>
+
+<main class="wrap">
+  <header>
+    <h1>The Great Calm</h1>
+    <p class="sub">A game after Coleridge · Rime of the Ancient Mariner, Part IV</p>
+  </header>
+
+  <div class="stage">
+    <canvas id="c" aria-label="A becalmed ship at night. The dead crew stare from the deck; water-snakes move in the sea below."></canvas>
+    <div class="overlay" id="intro">
+      <div class="card">
+        <h2>Alone on a wide wide sea</h2>
+        <p>The ship lies becalmed. Two hundred men lie dead on the deck, and every one of them is staring at you. The Albatross hangs from your neck.</p>
+        <p class="task">Pray to lift the curse.</p>
+        <button id="begin" type="button">Begin</button>
+      </div>
+    </div>
+    <div class="overlay" id="end" hidden>
+      <div class="card">
+        <p class="eyebrow">The ship's log</p>
+        <dl class="tally">
+          <div><dt>Prayers under the curse</dt><dd id="e-att">0</dd></div>
+          <div><dt>Answered</dt><dd class="zero">0</dd></div>
+          <div><dt>Blessings, given unaware</dt><dd class="one">1</dd></div>
+          <div><dt>Prayers after</dt><dd class="one">1 of 1</dd></div>
+        </dl>
+        <blockquote>He prayeth best, who loveth best<br>All things both great and small.</blockquote>
+        <button id="again" type="button">Sail again</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="log">
+    <div class="stats">
+      <span><b id="day">Day 1</b> of the calm</span>
+      <span>Prayers attempted <b id="att">0</b></span>
+      <span>Answered <b id="ans">0</b></span>
+    </div>
+    <button id="pray" type="button" disabled>Pray</button>
+  </div>
+
+  <section class="page">
+    <p class="gloss" id="gloss">The ancient Mariner beholdeth the dead.</p>
+    <p class="verse" id="verse" aria-live="polite">The many men, so beautiful!<br>And they all dead did lie.</p>
+  </section>
+
+  <p class="source">Lines quoted from Samuel Taylor Coleridge, “The Rime of the Ancient Mariner,” Parts IV–V, in The Norton Anthology of Poetry, Shorter Fifth Edition (2005). Margin notes are Coleridge’s own glosses.</p>
+</main>
+
+<script>
+(() => {
+  const W = 960, H = 600, HZ = 400;
+  const C = { rot: '#4d5a43', bone: '217,211,191', ember: '192,86,60', gold: '217,168,66', red: '150,34,22' };
+  const cv = document.getElementById('c');
+  const ctx = cv.getContext('2d');
+  const $ = (id) => document.getElementById(id);
+  const prayBtn = $('pray'), verseEl = $('verse'), glossEl = $('gloss');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const G = {
+    cursed: 'But the curse liveth for him in the eye of the dead men.',
+    moon: 'In his loneliness and fixedness he yearneth towards the journeying Moon.',
+    creatures: "By the light of the Moon he beholdeth God's creatures of the great calm.",
+    bless: 'He blesseth them in his heart.',
+    spell: 'The spell begins to break.',
+    rain: 'By grace of the holy Mother, the ancient Mariner is refreshed with rain.'
+  };
+  const OPEN = 'Alone, alone, all, all alone,<br>Alone on a wide wide sea!';
+  const FAIL = [
+    'I looked to heaven, and tried to pray;',
+    'But or ever a prayer had gushed,',
+    'A wicked whisper came, and made<br>My heart as dry as dust.',
+    'I closed my lids, and kept them close,',
+    'The look with which they looked on me<br>Had never passed away.',
+    'But oh! more horrible than that<br>Is the curse in a dead man’s eye!',
+    'Seven days, seven nights, I saw that curse,<br>And yet I could not die.',
+    'And never a saint took pity on<br>My soul in agony.',
+    'And a thousand thousand slimy things<br>Lived on; and so did I.',
+    'I looked upon the rotting sea,<br>And drew my eyes away;',
+    'For the sky and the sea, and the sea and the sky<br>Lay like a load on my weary eye,'
+  ];
+  const MOON1 = 'The moving Moon went up the sky,<br>And nowhere did abide:';
+  const MOON2 = 'Softly she was going up,<br>And a star or two beside—';
+  const SNAKES1 = 'Beyond the shadow of the ship,<br>I watched the water-snakes:';
+  const SNAKES2 = 'Blue, glossy green, and velvet black,<br>They coiled and swam; and every track<br>Was a flash of golden fire.';
+  const GRASP = '<span class="aside">They slip away from the reaching hand.</span>';
+  const BLESS = 'O happy living things! no tongue<br>Their beauty might declare:<br>A spring of love gushed from my heart,<br>And I blessed them unaware.';
+  const RELEASE = 'The self-same moment I could pray;<br>And from my neck so free<br>The Albatross fell off, and sank<br>Like lead into the sea.';
+  const RAIN = 'I dreamt that they were filled with dew;<br>And when I awoke, it rained.';
+
+  const fresh = () => ({
+    phase: 'intro', attempts: 0, answered: 0, moon: 0, lastPray: 0, watch: 0, fullFor: 0,
+    glare: 0, flash: 0, eyes: 1, stage: 0, t: 0, mark: 0, ended: false,
+    alb: { x: 600, y: 338, vx: 0, vy: 0, a: 1, state: 'hung' }, splash: 0, rain: []
+  });
+  let S = fresh();
+  const P = { x: -999, y: -999, inSea: false, touch: matchMedia('(hover: none)').matches };
+
+  const stars = Array.from({ length: 70 }, () => ({ x: Math.random() * W, y: Math.random() * (HZ - 50), r: Math.random() * 1.1 + 0.3, p: Math.random() * 6 }));
+  const SN = [
+    { x: 120, y: 470, ph: 0.0, dir: 1, col: '#e4eefa' },
+    { x: 330, y: 522, ph: 1.7, dir: -1, col: '#3d7fe0' },
+    { x: 520, y: 458, ph: 3.1, dir: 1, col: '#2f9e78' },
+    { x: 700, y: 548, ph: 4.2, dir: -1, col: '#1b1424', edge: true },
+    { x: 860, y: 482, ph: 2.4, dir: -1, col: '#3d7fe0' },
+    { x: 250, y: 576, ph: 5.0, dir: 1, col: '#2f9e78' }
+  ];
+  const CREW = [210, 238, 266, 292, 320, 346, 372, 452, 480, 506, 532, 558].map((x, i) => ({ x, y: 344 + (i % 3) * 3, lean: (i % 2 ? 1 : -1) * 0.3 }));
+
+  const hx = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+  const mix = (a, b, t) => { const A = hx(a), B = hx(b); return `rgb(${A.map((v, i) => Math.round(v + (B[i] - v) * t)).join(',')})`; };
+  const clamp = (v) => Math.max(0, Math.min(1, v));
+
+  function say(text, gloss) {
+    verseEl.innerHTML = text;
+    if (gloss) glossEl.textContent = gloss;
+    if (!reduce) { verseEl.classList.remove('in'); void verseEl.offsetWidth; verseEl.classList.add('in'); }
+  }
+  function hud() {
+    $('day').textContent = 'Day ' + Math.min(7, 1 + Math.floor(S.attempts / 5));
+    $('att').textContent = S.attempts;
+    $('ans').textContent = S.answered;
+  }
+
+  function begin() {
+    $('intro').hidden = true; $('end').hidden = true;
+    S.phase = 'cursed'; S.lastPray = S.t;
+    prayBtn.disabled = false; prayBtn.textContent = 'Pray'; prayBtn.classList.remove('ready');
+    say(OPEN, G.cursed); hud(); prayBtn.focus();
+  }
+  function bless() {
+    S.phase = 'blessed'; S.mark = S.t; prayBtn.disabled = true;
+    say(BLESS, G.bless);
+  }
+  function finish() {
+    S.ended = true;
+    $('e-att').textContent = S.attempts;
+    $('end').hidden = false;
+    $('again').focus();
+  }
+
+  prayBtn.addEventListener('click', () => {
+    if (S.phase === 'cursed') {
+      S.attempts++; S.lastPray = S.t;
+      S.moon = Math.max(0, S.moon - 0.35);
+      S.watch = 0; S.fullFor = 0; S.stage = 0;
+      S.glare = Math.min(1, S.glare + 0.06); S.flash = 1;
+      say(FAIL[(S.attempts - 1) % FAIL.length], G.cursed);
+      hud();
+    } else if (S.phase === 'canPray') {
+      S.answered = 1; S.phase = 'released'; S.mark = S.t;
+      S.alb.state = 'falling'; S.alb.vx = 180;
+      prayBtn.disabled = true; prayBtn.classList.remove('ready'); prayBtn.textContent = 'Prayed';
+      say(RELEASE, G.spell); hud();
+    }
+  });
+  $('begin').addEventListener('click', begin);
+  $('again').addEventListener('click', () => { S = fresh(); begin(); });
+
+  const toLogical = (e) => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) * W / r.width, (e.clientY - r.top) * H / r.height]; };
+  cv.addEventListener('pointermove', (e) => { [P.x, P.y] = toLogical(e); P.inSea = P.y > HZ + 30; if (e.pointerType === 'mouse') P.touch = false; });
+  cv.addEventListener('pointerleave', () => { P.inSea = false; P.x = -999; P.y = -999; });
+  cv.addEventListener('pointerdown', (e) => {
+    [P.x, P.y] = toLogical(e);
+    if (e.pointerType !== 'mouse') P.touch = true;
+    if (S.phase === 'cursed' && P.y > HZ + 30 && S.moon > 0.5) { S.watch = 0; S.fullFor = 0; say(GRASP); }
+  });
+
+  function update(dt) {
+    S.t += dt;
+    S.flash = Math.max(0, S.flash - dt * 1.8);
+    if (S.phase === 'cursed') {
+      const idle = S.t - S.lastPray;
+      if (idle > 1.2) S.moon = Math.min(1, S.moon + dt / 11);
+      if (idle > 2.5) {
+        if (S.stage < 1 && S.moon > 0.12) { S.stage = 1; say(MOON1, G.moon); }
+        if (S.stage < 2 && S.moon > 0.5) { S.stage = 2; say(MOON2, G.moon); }
+        if (S.stage < 3 && S.moon >= 1) { S.stage = 3; say(SNAKES1, G.creatures); }
+      }
+      if (S.moon >= 1) {
+        S.fullFor += dt;
+        const watching = P.inSea || P.touch || S.fullFor > 14;
+        S.watch = watching ? Math.min(1, S.watch + dt / 3) : Math.max(0, S.watch - dt / 4);
+        if (S.stage === 3 && S.watch > 0.45) { S.stage = 4; say(SNAKES2, G.creatures); }
+        if (S.watch >= 1) bless();
+      }
+    } else if (S.phase === 'blessed' && S.t - S.mark > 4.5) {
+      S.phase = 'canPray'; prayBtn.disabled = false; prayBtn.classList.add('ready');
+      glossEl.textContent = G.spell; prayBtn.focus();
+    } else if (S.phase === 'released' || S.phase === 'rain') {
+      S.eyes = Math.max(0, S.eyes - dt * 0.6);
+      const a = S.alb;
+      if (a.state === 'falling') {
+        a.x += a.vx * dt; a.vx *= 0.97; a.vy += 700 * dt; a.y += a.vy * dt;
+        if (a.y >= HZ + 14) { a.state = 'sinking'; a.y = HZ + 14; S.splash = 1; }
+      } else if (a.state === 'sinking') {
+        a.y += 22 * dt; a.a = Math.max(0, a.a - dt * 0.55);
+        if (a.a <= 0) a.state = 'gone';
+      }
+      S.splash = Math.max(0, S.splash - dt * 0.5);
+      if (S.phase === 'released' && S.t - S.mark > 4.5) { S.phase = 'rain'; S.mark = S.t; say(RAIN, G.rain); }
+      if (S.phase === 'rain') {
+        const n = reduce ? 2 : 6;
+        for (let i = 0; i < n; i++) S.rain.push({ x: Math.random() * (W + 80) - 40, y: -10, v: 520 + Math.random() * 220 });
+        if (S.t - S.mark > 7 && !S.ended) finish();
+      }
+    }
+    for (const d of S.rain) { d.y += d.v * dt; d.x -= 40 * dt; }
+    S.rain = S.rain.filter((d) => d.y < H + 10);
+  }
+
+  // ---------- drawing ----------
+  function sky() {
+    const g = ctx.createLinearGradient(0, 0, 0, HZ);
+    g.addColorStop(0, '#05090c');
+    g.addColorStop(1, mix('#0e181d', '#24343c', S.moon));
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, HZ);
+    for (const s of stars) {
+      const a = (0.25 + 0.35 * S.moon) * (0.6 + 0.4 * Math.sin(S.t * 1.3 + s.p));
+      ctx.fillStyle = `rgba(${C.bone},${a})`;
+      ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 7); ctx.fill();
+    }
+  }
+  const moonY = () => HZ + 50 - S.moon * (HZ + 50 - 110);
+  function moon() {
+    const mx = 770, my = moonY();
+    const glow = ctx.createRadialGradient(mx, my, 10, mx, my, 120);
+    glow.addColorStop(0, 'rgba(232,228,207,0.35)'); glow.addColorStop(1, 'rgba(232,228,207,0)');
+    ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(mx, my, 120, 0, 7); ctx.fill();
+    ctx.fillStyle = '#ece7d2'; ctx.beginPath(); ctx.arc(mx, my, 26, 0, 7); ctx.fill();
+    ctx.fillStyle = 'rgba(160,150,120,0.25)';
+    ctx.beginPath(); ctx.arc(mx - 8, my - 6, 6, 0, 7); ctx.arc(mx + 9, my + 7, 4, 0, 7); ctx.fill();
+  }
+  function sea() {
+    const g = ctx.createLinearGradient(0, HZ, 0, H);
+    g.addColorStop(0, mix('#0c191d', '#1b2c33', S.moon)); g.addColorStop(1, '#050b0e');
+    ctx.fillStyle = g; ctx.fillRect(0, HZ, W, H - HZ);
+    ctx.fillStyle = `rgba(${C.bone},0.08)`; ctx.fillRect(0, HZ, W, 1);
+    const vis = clamp((HZ - moonY()) / 120);
+    for (let i = 0; i < 16; i++) {
+      const y = HZ + 8 + i * 12;
+      const w = (12 + i * 5) * (0.6 + 0.4 * Math.sin(S.t * 1.4 + i));
+      ctx.fillStyle = `rgba(232,228,207,${(0.22 - i * 0.012) * vis})`;
+      ctx.fillRect(770 - w / 2, y, w, 2);
+    }
+    
+    ctx.fillStyle = `rgba(${C.red},${0.22 + 0.25 * S.moon})`;
+    ctx.beginPath(); ctx.ellipse(410, HZ + 24, 270, 22, 0, 0, 7); ctx.fill();
+  }
+  function snake(s, c) {
+    const spd = 0.25 + 0.75 * c;
+    const hxp = s.x + Math.sin(S.t * 0.35 * spd + s.ph) * 70;
+    const pts = [];
+    for (let i = 0; i < 26; i++) pts.push([hxp - s.dir * i * 8, s.y + Math.sin(S.t * 2.2 * spd + s.ph + i * 0.55) * 7]);
+    if (c > 0.6) {
+      const k = (c - 0.6) / 0.4;
+      for (let i = 18; i < 26; i++) {
+        const [x, y] = pts[i];
+        ctx.fillStyle = `rgba(${C.gold},${k * (1 - (i - 18) / 8) * 0.85})`;
+        ctx.beginPath(); ctx.arc(x, y, 2.4 - (i - 18) * 0.22, 0, 7); ctx.fill();
+      }
+    }
+    const col = mix(C.rot, s.col, c);
+    ctx.lineCap = 'round';
+    ctx.globalAlpha = 0.5 + 0.5 * c;
+    for (let i = 0; i < 17; i++) {
+      ctx.strokeStyle = col; ctx.lineWidth = Math.max(1.5, 6.5 - i * 0.3);
+      ctx.beginPath(); ctx.moveTo(pts[i][0], pts[i][1]); ctx.lineTo(pts[i + 1][0], pts[i + 1][1]); ctx.stroke();
+    }
+    if (s.edge && c > 0.3) {
+      ctx.globalAlpha = c * 0.7; ctx.strokeStyle = `rgb(${C.gold})`; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1] - 3);
+      for (let i = 1; i < 18; i++) ctx.lineTo(pts[i][0], pts[i][1] - 3); ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+    if (c > 0.85 && Math.random() < 0.04 && !reduce) flakes.push({ x: pts[0][0], y: pts[0][1], life: 1 });
+  }
+  let flakes = [];
+  function drawFlakes(dt) {
+    for (const f of flakes) { f.y -= 14 * dt; f.life -= dt * 0.7; ctx.fillStyle = `rgba(230,236,240,${Math.max(0, f.life) * 0.7})`; ctx.fillRect(f.x, f.y, 2, 2); }
+    flakes = flakes.filter((f) => f.life > 0);
+  }
+  function ship() {
+    const rim = 0.15 + 0.4 * S.moon;
+    // masts and limp sails, "so thin and sere"
+    ctx.fillStyle = '#1a140f';
+    ctx.fillRect(402, 110, 6, 260); ctx.fillRect(253, 190, 5, 180);
+    ctx.strokeStyle = `rgba(${C.bone},${rim * 0.5})`; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(330, 150); ctx.lineTo(480, 150); ctx.moveTo(205, 214); ctx.lineTo(305, 214); ctx.stroke();
+    const sail = (x0, x1, top, bot) => {
+      ctx.beginPath(); ctx.moveTo(x0, top); ctx.lineTo(x1, top);
+      const n = 7;
+      for (let i = 0; i <= n; i++) { const x = x1 - (x1 - x0) * i / n - 4; ctx.lineTo(x, bot + (i % 2 ? -10 : 6)); }
+      ctx.closePath();
+      ctx.fillStyle = `rgba(${C.bone},${0.07 + 0.08 * S.moon})`; ctx.fill();
+      ctx.strokeStyle = `rgba(${C.bone},${0.14 + 0.1 * S.moon})`; ctx.stroke();
+    };
+    sail(340, 470, 152, 292); sail(212, 298, 216, 318);
+    // hull
+    ctx.beginPath();
+    ctx.moveTo(170, 368); ctx.lineTo(650, 368);
+    ctx.quadraticCurveTo(640, 410, 600, 428); ctx.lineTo(230, 428);
+    ctx.quadraticCurveTo(185, 410, 170, 368); ctx.closePath();
+    ctx.fillStyle = '#15100c'; ctx.fill();
+    ctx.strokeStyle = `rgba(${C.bone},${rim * 0.45})`; ctx.stroke();
+    ctx.fillStyle = `rgba(${C.bone},${rim * 0.25})`; ctx.fillRect(170, 367, 480, 1);
+  }
+  function crew() {
+    const intensity = (0.35 + 0.65 * Math.min(1, S.glare + S.flash)) * S.eyes;
+    for (const m of CREW) {
+      ctx.fillStyle = '#0d0a08';
+      ctx.beginPath(); ctx.ellipse(m.x, 360, 9, 9, 0, 0, 7); ctx.fill();
+      const hxp = m.x + m.lean * 6, hy = m.y;
+      ctx.fillStyle = '#1d1712'; ctx.beginPath(); ctx.arc(hxp, hy, 7, 0, 7); ctx.fill();
+      ctx.strokeStyle = `rgba(${C.bone},${0.08 + 0.2 * S.moon})`; ctx.lineWidth = 1; ctx.stroke();
+      for (const side of [-2.7, 2.7]) {
+        const ex = hxp + side, ey = hy - 0.5;
+        if (S.eyes < 0.06) {
+          ctx.strokeStyle = `rgba(${C.bone},0.25)`; ctx.beginPath(); ctx.moveTo(ex - 1.3, ey); ctx.lineTo(ex + 1.3, ey); ctx.stroke();
+          continue;
+        }
+        let ox = 0, oy = 0;
+        if (P.x > -900) { const dx = P.x - ex, dy = P.y - ey, d = Math.hypot(dx, dy) || 1; ox = dx / d * 1.2; oy = dy / d * 1.2; }
+        ctx.fillStyle = `rgba(${C.ember},${intensity * 0.3})`;
+        ctx.beginPath(); ctx.arc(ex, ey, 3.5 + 4 * S.glare + 3 * S.flash, 0, 7); ctx.fill();
+        ctx.fillStyle = `rgba(240,150,110,${intensity})`;
+        ctx.beginPath(); ctx.arc(ex + ox, ey + oy, 1.3, 0, 7); ctx.fill();
+      }
+    }
+  }
+  function mariner() {
+    const rim = `rgba(${C.bone},${0.2 + 0.45 * S.moon})`;
+    ctx.fillStyle = '#211a14'; ctx.strokeStyle = rim; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(594, 368); ctx.lineTo(596, 344); ctx.moveTo(606, 368); ctx.lineTo(604, 344); ctx.stroke();
+    ctx.beginPath(); ctx.rect(592, 316, 16, 30); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.arc(600, 307, 8, 0, 7); ctx.fill(); ctx.stroke();
+    const a = S.alb;
+    if (a.state === 'gone') return;
+    if (a.state === 'hung') { ctx.strokeStyle = `rgba(${C.bone},0.5)`; ctx.beginPath(); ctx.moveTo(594, 316); ctx.lineTo(a.x, a.y - 4); ctx.lineTo(606, 316); ctx.stroke(); }
+    ctx.globalAlpha = a.a;
+    ctx.fillStyle = '#d6d0bc'; ctx.strokeStyle = '#d6d0bc'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.ellipse(a.x, a.y, 9, 4.5, 0.2, 0, 7); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(a.x - 4, a.y); ctx.quadraticCurveTo(a.x - 14, a.y + 4, a.x - 22, a.y + 14);
+    ctx.moveTo(a.x + 4, a.y); ctx.quadraticCurveTo(a.x + 14, a.y + 4, a.x + 22, a.y + 14); ctx.stroke();
+    ctx.globalAlpha = 1;
+    if (S.splash > 0) {
+      ctx.strokeStyle = `rgba(${C.bone},${S.splash * 0.6})`; ctx.lineWidth = 1;
+      for (let r = 0; r < 3; r++) { ctx.beginPath(); ctx.ellipse(a.x, HZ + 16, (1 - S.splash) * 60 + r * 10, ((1 - S.splash) * 60 + r * 10) * 0.18, 0, 0, 7); ctx.stroke(); }
+    }
+  }
+  function rain() {
+    ctx.strokeStyle = `rgba(${C.bone},0.35)`; ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (const d of S.rain) { ctx.moveTo(d.x, d.y); ctx.lineTo(d.x - 3, d.y + 14); }
+    ctx.stroke();
+  }
+
+  function draw(dt) {
+    ctx.setTransform(cv.width / W, 0, 0, cv.height / H, 0, 0);
+    sky(); moon(); sea();
+    const c = S.phase === 'cursed' || S.phase === 'intro' ? clamp((S.moon - 0.55) / 0.45) : 1;
+    for (const s of SN) snake(s, c);
+    drawFlakes(dt);
+    ship(); crew(); mariner(); rain();
+  }
+
+  function resize() {
+    const r = cv.getBoundingClientRect();
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    cv.width = Math.max(1, Math.round(r.width * dpr));
+    cv.height = Math.max(1, Math.round(r.width * H / W * dpr));
+  }
+  new ResizeObserver(resize).observe(cv);
+  resize();
+
+  let last = performance.now();
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    update(dt); draw(dt);
+    requestAnimationFrame(frame);
+  }
+  hud();
+  requestAnimationFrame(frame);
+})();
+</script>
